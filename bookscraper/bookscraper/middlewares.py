@@ -8,6 +8,42 @@ from scrapy import signals
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
+from random import randint
+import requests
+
+class FakeUserAgentMiddleware:
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.settings)
+    
+    def __init__(self, settings):
+        self.pzb_endpoint = settings.get('PZB_FAKE_USER_AGENT_ENDPOINT') 
+        self.pzb_fake_user_agents_active = settings.get('PZB_FAKE_USER_AGENT_ENABLED', False)
+        self._get_user_agents_list()
+        self._fake_user_agents_enabled()
+    
+    def _get_user_agents_list(self):
+        response = requests.get(self.pzb_endpoint)
+        text_response = response.text
+        self.user_agents_list = text_response.split('\n')
+    
+    def _get_random_user_agent(self):
+        random_index = randint(0, len(self.user_agents_list) - 1)
+        return self.user_agents_list[random_index]
+    
+    def _fake_user_agents_enabled(self):
+        if self.pzb_endpoint is None or self.pzb_endpoint == '' or self.pzb_fake_user_agents_active == False:
+            self.pzb_fake_user_agents_active = False
+        else:
+            self.pzb_fake_user_agents_active = True
+    
+    def process_request(self, request, spider):        
+        random_user_agent = self._get_random_user_agent()
+        request.headers['User-Agent'] = random_user_agent
+
+        # print('****************** NEW HEADER ******************')
+        # print(request.headers['User-Agent'])
 
 class BookscraperSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
