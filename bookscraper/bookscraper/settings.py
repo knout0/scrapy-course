@@ -22,6 +22,12 @@ FEEDS = {
 PZB_FAKE_USER_AGENT_ENDPOINT = 'https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt'
 PZB_FAKE_USER_AGENT_ENABLED = True
 
+ROTATING_PROXY_LIST = [
+    '110.78.82.70:5678',
+    '38.127.179.84:11537',
+    '202.159.60.65:443',
+]
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "bookscraper (+http://www.yourdomain.com)"
 
@@ -62,6 +68,8 @@ ROBOTSTXT_OBEY = False
 DOWNLOADER_MIDDLEWARES = {
 #    "bookscraper.middlewares.BookscraperDownloaderMiddleware": 543,
    "bookscraper.middlewares.FakeUserAgentMiddleware": 400,
+   "rotating_proxies.middlewares.RotatingProxyMiddleware": 610,
+   "rotating_proxies.middlewares.BanDetectionMiddleware": 620,
 }
 
 # Enable or disable extensions
